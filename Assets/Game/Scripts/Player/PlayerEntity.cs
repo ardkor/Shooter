@@ -4,26 +4,35 @@ using UnityEngine;
 
 public class PlayerEntity : MonoBehaviour
 {
-    [SerializeField] private ShotgunBehavior _shotgunBehavior;
-
+    [SerializeField] private int _maxHp = 100;
     [SerializeField] private int _hp;
+
+    private BodyRagdoll _bodyRagdoll;
 
     public void TakeDamage(int damage)
     {
         _hp -= damage;
-
-        Player_regdoll.died = true;
-        _shotgunBehavior.Unconnect();
+        _hp = Mathf.Clamp(_hp, 0, _maxHp);
+        EventBus.Instance.playerHpChanged(_hp);
+        if (_hp <= 0)
+        {
+            EventBus.Instance.playerDied?.Invoke();
+            _bodyRagdoll.MakeRagdoll();
+        }
     }
 
-    private int low_gun_damage = 6;
-    void OnTriggerEnter(Collider collider)
+    private void Start()
+    {
+        _hp = _maxHp;
+        EventBus.Instance.playerHpChanged?.Invoke(_hp);
+        _bodyRagdoll = GetComponent<BodyRagdoll>();
+    }
+    private void OnTriggerEnter(Collider collider)
     {
         Bullet bullet = collider.GetComponent<Bullet>();
         if (bullet)// != null)
         {
             TakeDamage(bullet.Damage);
         }
-
     }
 }

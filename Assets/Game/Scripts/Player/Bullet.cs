@@ -11,7 +11,7 @@ public class Bullet : MonoBehaviour
 
     private Rigidbody _rigidbody;
 
-    public float Damage => _damage;
+    public int Damage => _damage;
 
     private void Awake()
     {

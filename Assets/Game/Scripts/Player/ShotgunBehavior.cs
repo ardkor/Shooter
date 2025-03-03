@@ -7,17 +7,15 @@ using UnityEngine;
 public class ShotgunBehavior : MonoBehaviour
 {
 
-    [SerializeField] private Transform spawn_shotgun_BulletPosition_right;
-    [SerializeField] private Transform spawn_shotgun_BulletPosition_left;
-    [SerializeField] private Transform spawn_shotgun_roza_left;
-    [SerializeField] private Transform spawn_shotgun_roza_right;
+    [SerializeField] private Transform _bulletSpawnRight;
+    [SerializeField] private Transform _bulletSpawnLeft;
+    [SerializeField] private Transform _shotVfxSpawnLeft;
+    [SerializeField] private Transform _shotVfxSpawnRight;
 
     [SerializeField] private GameObject _bullet;
-    [SerializeField] private GameObject vfxShoot;
+    [SerializeField] private GameObject _vfxShot;
 
     [SerializeField] private Transform parent;
-
-    [SerializeField] private LayerMask aimColliderLayerMask;
 
     private Animation _animation;
 
@@ -38,16 +36,22 @@ public class ShotgunBehavior : MonoBehaviour
     private Coroutine fireCoroutine;
     private Coroutine reloadCoroutine;
 
-    public void Unconnect()
+    private void OnEnable()
+    {
+        EventBus.Instance.playerDied += Unconnect;
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Instance.playerDied -= Unconnect;
+    }
+
+    private void Unconnect()
     {
        // unconnected = true;
         _collider.enabled = true;
         transform.parent = null;
-        AirGunFollow script = GetComponent<AirGunFollow>();
-        ShotgunBehavior script2 = GetComponent<ShotgunBehavior>();
         _rigidbody.useGravity = true;
-        script.enabled = false;
-        script2.enabled = false;
     }
     public void SetDirectionPoint(Vector3 directionPoint)
     {
@@ -73,7 +77,7 @@ public class ShotgunBehavior : MonoBehaviour
 
     public void TryShoot()
     {
-         Vector3 bulletDirection = (directionPoint - spawn_shotgun_BulletPosition_right.position).normalized;
+         Vector3 bulletDirection = (directionPoint - _bulletSpawnRight.position).normalized;
 
         if (_canFire)
         {
@@ -81,16 +85,16 @@ public class ShotgunBehavior : MonoBehaviour
             {
                 fireCoroutine = StartCoroutine(FireRate());
                 _animation.Play("shotgun_recoil");
-                Instantiate(_bullet, spawn_shotgun_BulletPosition_right.position, Quaternion.LookRotation(bulletDirection, Vector3.up));
-                Instantiate(vfxShoot, spawn_shotgun_roza_right.position, Quaternion.identity);
+                Instantiate(_bullet, _bulletSpawnRight.position, Quaternion.LookRotation(bulletDirection, Vector3.up));
+                Instantiate(_vfxShot, _shotVfxSpawnRight.position, Quaternion.identity);
                 _firstShot = false;
             }
             else
             {
                 reloadCoroutine = StartCoroutine(Reload());
                 _animation.Play("shotgun_recoil");
-                Instantiate(_bullet, spawn_shotgun_BulletPosition_left.position, Quaternion.LookRotation(bulletDirection, transform.up));
-                Instantiate(vfxShoot, spawn_shotgun_roza_left.position, Quaternion.identity);
+                Instantiate(_bullet, _bulletSpawnLeft.position, Quaternion.LookRotation(bulletDirection, transform.up));
+                Instantiate(_vfxShot, _shotVfxSpawnLeft.position, Quaternion.identity);
                 _firstShot = true;
                 _animation.Play("shotgun_recharge");
             }
@@ -110,6 +114,7 @@ public class ShotgunBehavior : MonoBehaviour
 
     void Update()
     {
+        //unconnected
         if (_aiming)
         {
             transform.LookAt(directionPoint);

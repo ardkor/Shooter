@@ -25,6 +25,22 @@ namespace main_hero
 
         private float aimingDistance = 1000f;
 
+        private bool _aimingEnabled = true;
+
+        private void OnEnable()
+        {
+            EventBus.Instance.playerDied += DisableAiming;
+        }
+
+        private void OnDisable()
+        {
+            EventBus.Instance.playerDied -= DisableAiming;
+        }
+        private void DisableAiming()
+        {
+            _aimingEnabled = false;
+        }
+
         private void Awake()
         {
 
@@ -51,43 +67,46 @@ namespace main_hero
         }
         private void Update()
         {
-            CalculateLookPoint();
-
-            if (starterAssetsInputs.aim)
+            if (_aimingEnabled)
             {
-                shotgunBehavior.SetAiming(true);
-                shotgunBehavior.SetDirectionPoint(lookPointPosition);
+                CalculateLookPoint();
 
-                aimVirtualCamera.gameObject.SetActive(true);
-                thirdPersonController.SetSensitivityMultiplier(aimSensitivity);
-                thirdPersonController.SetRotateOnMove(false);
-
-                animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 1f, Time.deltaTime * 10f));
-
-                Vector3 bodyDirectionTarget = lookPointPosition;
-                bodyDirectionTarget.y = transform.position.y;
-                Vector3 bodyDirection = (bodyDirectionTarget - transform.position).normalized;
-
-                transform.forward = Vector3.Lerp(transform.forward, bodyDirection, Time.deltaTime * 20f);
-
-                if (starterAssetsInputs.shoot)
+                if (starterAssetsInputs.aim)
                 {
-                    shotgunBehavior.TryShoot();
-                    //starterAssetsInputs.shoot = false;
+                    shotgunBehavior.SetAiming(true);
+                    shotgunBehavior.SetDirectionPoint(lookPointPosition);
+
+                    aimVirtualCamera.gameObject.SetActive(true);
+                    thirdPersonController.SetSensitivityMultiplier(aimSensitivity);
+                    thirdPersonController.SetRotateOnMove(false);
+
+                    animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 1f, Time.deltaTime * 10f));
+
+                    Vector3 bodyDirectionTarget = lookPointPosition;
+                    bodyDirectionTarget.y = transform.position.y;
+                    Vector3 bodyDirection = (bodyDirectionTarget - transform.position).normalized;
+
+                    transform.forward = Vector3.Lerp(transform.forward, bodyDirection, Time.deltaTime * 20f);
+
+                    if (starterAssetsInputs.shoot)
+                    {
+                        shotgunBehavior.TryShoot();
+                        //starterAssetsInputs.shoot = false;
+                    }
                 }
-            }
-            else
-            {
-                /*if (starterAssetsInputs.shoot)
+                else
                 {
-                    starterAssetsInputs.shoot = false;
-                }*/
-                shotgunBehavior.SetAiming(false);
+                    /*if (starterAssetsInputs.shoot)
+                    {
+                        starterAssetsInputs.shoot = false;
+                    }*/
+                    shotgunBehavior.SetAiming(false);
 
-                aimVirtualCamera.gameObject.SetActive(false);
-                thirdPersonController.SetSensitivityMultiplier(normalSensitivity);
-                thirdPersonController.SetRotateOnMove(true);
-                animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 0f, Time.deltaTime * 10f));
+                    aimVirtualCamera.gameObject.SetActive(false);
+                    thirdPersonController.SetSensitivityMultiplier(normalSensitivity);
+                    thirdPersonController.SetRotateOnMove(true);
+                    animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 0f, Time.deltaTime * 10f));
+                }
             }
         }
     }

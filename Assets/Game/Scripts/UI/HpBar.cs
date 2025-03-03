@@ -6,6 +6,16 @@ public class HpBar : MonoBehaviour
 {
     [SerializeField] private TMP_Text HP_text;
 
+    private void OnEnable()
+    {
+        EventBus.Instance.playerHpChanged += UpdateHpText;
+    }
+
+    private void OnDisable()
+    {
+        EventBus.Instance.playerHpChanged -= UpdateHpText;
+    }
+
     private void UpdateHpText(int hp) {
         HP_text.text = hp.ToString();
     }

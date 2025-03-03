@@ -2,20 +2,25 @@ using UnityEngine;
 
 public class Observer : MonoBehaviour
 {
-    // Detects manually if obj is being seen by the main camera
-
-    [SerializeField] GameObject obj;
     [SerializeField] Collider objCollider;
-
     [SerializeField] Transform head_transform;
-    public static bool observed = false;
-    public static bool seeing;
-    private float counter = 7f;
-    [SerializeField] private float ray_length;
-    Camera cam;
-    Plane[] planes;
 
     [SerializeField] LayerMask aimColliderLayerMask;
+
+    [SerializeField] private float ray_length;
+
+    private Camera cam;
+    private Plane[] planes;
+
+    private float _rememberTime = 5f;
+    private float _timer;
+
+    private bool _observed;
+    private bool _observing;
+
+    public bool observing => _observing;
+    public bool observed => _observed;
+
 
     void Start()
     {
@@ -27,41 +32,23 @@ public class Observer : MonoBehaviour
         planes = GeometryUtility.CalculateFrustumPlanes(cam);
         if (GeometryUtility.TestPlanesAABB(planes, objCollider.bounds))
         {
-            Ray head_ray = new Ray(transform.position, head_transform.position- transform.position);
+            Ray head_ray = new Ray(transform.position, head_transform.position - transform.position);
             Debug.DrawRay(head_ray.origin, head_ray.direction.normalized * 100f, Color.blue);
             if (Physics.Raycast(head_ray, out RaycastHit hit, ray_length, aimColliderLayerMask))
             {
-                if (hit.collider.gameObject.name == "PlayerArmature (2)")
+                if (hit.collider.GetComponent<PlayerEntity>())
                 {
-                   // Debug.Log(head_ray);
-                    observed = true;
-                    counter = 6.5f;
-                    seeing = true;
-                }
-                else
-                {
-                    seeing = false;
-                    counter -= Time.deltaTime;
-                    if (counter <= 0) observed = false;
+                    _observed = true;
+                    _timer = _rememberTime;
+                    _observing = true;
+                    return;
                 }
             }
-            else
-            {
-                seeing = false;
-                counter -= Time.deltaTime;
-                if (counter <= 0) observed = false;
-                // Debug.Log("Nothing has been detected");
-            }
-            // Debug.Log(obj.name + " has been detected!");
-        }
-        else
-        {
-            seeing = false;
-            counter -= Time.deltaTime;
-            if (counter <= 0) observed = false;
-            // Debug.Log("Nothing has been detected");
         }
 
+        _observing = false;
+        _timer -= Time.deltaTime;
+        if (_timer <= 0) _observed = false;
 
     }
 }
