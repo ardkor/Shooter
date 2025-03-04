@@ -36,6 +36,10 @@ public class ShotgunBehavior : MonoBehaviour
     private Coroutine fireCoroutine;
     private Coroutine reloadCoroutine;
 
+    private AmmunitionPanel _ammunitionPanel;
+
+    private int _patronsRemains = 12;
+
     private void OnEnable()
     {
         EventBus.Instance.playerDied += Unconnect;
@@ -79,7 +83,7 @@ public class ShotgunBehavior : MonoBehaviour
     {
          Vector3 bulletDirection = (directionPoint - _bulletSpawnRight.position).normalized;
 
-        if (_canFire)
+        if (_canFire && _patronsRemains > 0)
         {
             if (_firstShot)
             {
@@ -88,6 +92,7 @@ public class ShotgunBehavior : MonoBehaviour
                 Instantiate(_bullet, _bulletSpawnRight.position, Quaternion.LookRotation(bulletDirection, Vector3.up));
                 Instantiate(_vfxShot, _shotVfxSpawnRight.position, Quaternion.identity);
                 _firstShot = false;
+                _ammunitionPanel.SetPatronsCharged(1);
             }
             else
             {
@@ -97,6 +102,7 @@ public class ShotgunBehavior : MonoBehaviour
                 Instantiate(_vfxShot, _shotVfxSpawnLeft.position, Quaternion.identity);
                 _firstShot = true;
                 _animation.Play("shotgun_recharge");
+                _ammunitionPanel.SetPatronsCharged(0);
             }
         }
     }
@@ -110,6 +116,8 @@ public class ShotgunBehavior : MonoBehaviour
         _collider.enabled = false;
         _animation = GetComponent<Animation>();
         _animation.Play("shotgun_pos_1");
+        _ammunitionPanel = FindObjectOfType<AmmunitionPanel>();
+        _ammunitionPanel.SetPatronsCharged(2);
     }
 
     void Update()
@@ -125,6 +133,9 @@ public class ShotgunBehavior : MonoBehaviour
         _canFire = false;
         yield return new WaitForSeconds(reloadTime);
         _canFire = true;
+        _patronsRemains -= 2;
+        _ammunitionPanel.SetPatronsCharged(2);
+        _ammunitionPanel.SetPatronsRemains(_patronsRemains);
     }
     private IEnumerator FireRate()
     {

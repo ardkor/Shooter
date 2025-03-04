@@ -21,7 +21,7 @@ public class Observer : MonoBehaviour
     public bool observing => _observing;
     public bool observed => _observed;
 
-
+    private Vector3 _playerCenterOffset = new Vector3(0, 1.3f, 0);
     void Start()
     {
         cam = GetComponent<Camera>();
@@ -32,8 +32,8 @@ public class Observer : MonoBehaviour
         planes = GeometryUtility.CalculateFrustumPlanes(cam);
         if (GeometryUtility.TestPlanesAABB(planes, objCollider.bounds))
         {
-            Ray head_ray = new Ray(transform.position, head_transform.position - transform.position);
-            Debug.DrawRay(head_ray.origin, head_ray.direction.normalized * 100f, Color.blue);
+            Ray head_ray = new Ray(transform.position, (head_transform.position - transform.position).normalized);
+            Debug.DrawRay(head_ray.origin, head_ray.direction * 100f, Color.blue);
             if (Physics.Raycast(head_ray, out RaycastHit hit, ray_length, aimColliderLayerMask))
             {
                 if (hit.collider.GetComponent<PlayerEntity>())
@@ -45,7 +45,6 @@ public class Observer : MonoBehaviour
                 }
             }
         }
-
         _observing = false;
         _timer -= Time.deltaTime;
         if (_timer <= 0) _observed = false;

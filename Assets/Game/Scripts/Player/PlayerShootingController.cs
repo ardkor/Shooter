@@ -6,7 +6,7 @@ using StarterAssets;
 
 namespace main_hero
 {
-    public class ThirdPersonShooterController : MonoBehaviour
+    public class PlayerShootingController : MonoBehaviour
     {
         [SerializeField] private CinemachineVirtualCamera aimVirtualCamera;
         [SerializeField] private ShotgunBehavior shotgunBehavior;
@@ -110,6 +110,5 @@ namespace main_hero
             }
         }
     }
-
 }
 

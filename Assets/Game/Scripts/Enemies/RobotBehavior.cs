@@ -113,7 +113,7 @@ public class RobotBehavior : MonoBehaviour
                     }
                     else
                     {
-                        targetSpeed = 4.2f;
+                        targetSpeed = 3.2f;
                     }
                 }
                 else
