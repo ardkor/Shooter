@@ -2,12 +2,12 @@ using UnityEngine;
 
 public class Observer : MonoBehaviour
 {
-    [SerializeField] Collider objCollider;
-    [SerializeField] Transform head_transform;
+    [SerializeField] Collider _target;
+    [SerializeField] Transform _rayTarget;
 
     [SerializeField] LayerMask aimColliderLayerMask;
 
-    [SerializeField] private float ray_length;
+    [SerializeField] private float _rayLength;
 
     private Camera cam;
     private Plane[] planes;
@@ -24,17 +24,17 @@ public class Observer : MonoBehaviour
     private Vector3 _playerCenterOffset = new Vector3(0, 1.3f, 0);
     void Start()
     {
-        cam = GetComponent<Camera>();
+        cam = GetComponentInChildren<Camera>();
     }
 
     void Update()
     {
         planes = GeometryUtility.CalculateFrustumPlanes(cam);
-        if (GeometryUtility.TestPlanesAABB(planes, objCollider.bounds))
+        if (GeometryUtility.TestPlanesAABB(planes, _target.bounds))
         {
-            Ray head_ray = new Ray(transform.position, (head_transform.position - transform.position).normalized);
+            Ray head_ray = new Ray(transform.position, (_rayTarget.position - transform.position).normalized);
             Debug.DrawRay(head_ray.origin, head_ray.direction * 100f, Color.blue);
-            if (Physics.Raycast(head_ray, out RaycastHit hit, ray_length, aimColliderLayerMask))
+            if (Physics.Raycast(head_ray, out RaycastHit hit, _rayLength, aimColliderLayerMask))
             {
                 if (hit.collider.GetComponent<PlayerEntity>())
                 {

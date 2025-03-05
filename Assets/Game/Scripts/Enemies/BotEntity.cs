@@ -31,9 +31,9 @@ public class BotEntity : MonoBehaviour
         _hp = _maxHp;
     }
 
-    void OnTriggerEnter(Collider collider)
+    private void OnCollisionEnter(Collision other)
     {
-        Bullet bullet = collider.GetComponent<Bullet>();
+        Bullet bullet = other.gameObject.GetComponent<Bullet>();
         if (bullet)// != null)
         {
             TakeDamage(bullet.Damage);

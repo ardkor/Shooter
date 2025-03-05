@@ -6,6 +6,7 @@ public class Bullet : MonoBehaviour
 {
     [SerializeField] private int _damage;
     [SerializeField] private float _speed;
+    private float _livingTime = 5f;
 
     [SerializeField] private GameObject _hitVFX;
 
@@ -21,10 +22,17 @@ public class Bullet : MonoBehaviour
     {
         _rigidbody.velocity = transform.forward * _speed;
     }
+    private void Update()
+    {
+        _livingTime -= Time.deltaTime;
+        if(_livingTime <= 0)
+            Destroy(gameObject);
+    }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision other)
     {
         Instantiate(_hitVFX, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
+
 }

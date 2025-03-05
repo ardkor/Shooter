@@ -9,6 +9,8 @@ public class PlayerEntity : MonoBehaviour
 
     private BodyRagdoll _bodyRagdoll;
 
+    private HpBar _hpBar;
+
     public void TakeDamage(int damage)
     {
         _hp -= damage;
@@ -24,12 +26,14 @@ public class PlayerEntity : MonoBehaviour
     private void Start()
     {
         _hp = _maxHp;
-        EventBus.Instance.playerHpChanged?.Invoke(_hp);
+        _hpBar = FindObjectOfType<HpBar>();
         _bodyRagdoll = GetComponent<BodyRagdoll>();
+        _hpBar.SetMaxHp(_maxHp);
+        _hpBar.UpdateHpDisplay(_maxHp);
     }
-    private void OnTriggerEnter(Collider collider)
+    private void OnCollisionEnter(Collision other)
     {
-        Bullet bullet = collider.GetComponent<Bullet>();
+        Bullet bullet = other.gameObject.GetComponent<Bullet>();
         if (bullet)// != null)
         {
             TakeDamage(bullet.Damage);

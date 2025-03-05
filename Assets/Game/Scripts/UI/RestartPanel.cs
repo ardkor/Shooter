@@ -23,6 +23,7 @@ public class RestartPanel : MonoBehaviour
 
     private void RestartGame()
     {
+        Cursor.visible = false;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
     private void ShowPanel()

@@ -16,6 +16,7 @@ public class ShotgunBehavior : MonoBehaviour
     [SerializeField] private GameObject _vfxShot;
 
     [SerializeField] private Transform parent;
+    [SerializeField] private AudioClip _fire;
 
     private Animation _animation;
 
@@ -38,7 +39,7 @@ public class ShotgunBehavior : MonoBehaviour
 
     private AmmunitionPanel _ammunitionPanel;
 
-    private int _patronsRemains = 12;
+    private int _patronsRemain = 12;
 
     private void OnEnable()
     {
@@ -83,26 +84,28 @@ public class ShotgunBehavior : MonoBehaviour
     {
          Vector3 bulletDirection = (directionPoint - _bulletSpawnRight.position).normalized;
 
-        if (_canFire && _patronsRemains > 0)
+        if (_canFire)
         {
             if (_firstShot)
             {
-                fireCoroutine = StartCoroutine(FireRate());
+                SoundManager.Instance.PlaySound(_fire, _shotVfxSpawnRight.position);
                 _animation.Play("shotgun_recoil");
                 Instantiate(_bullet, _bulletSpawnRight.position, Quaternion.LookRotation(bulletDirection, Vector3.up));
                 Instantiate(_vfxShot, _shotVfxSpawnRight.position, Quaternion.identity);
                 _firstShot = false;
                 _ammunitionPanel.SetPatronsCharged(1);
+                fireCoroutine = StartCoroutine(FireRate());
             }
             else
             {
-                reloadCoroutine = StartCoroutine(Reload());
+                SoundManager.Instance.PlaySound(_fire, _shotVfxSpawnLeft.position);
                 _animation.Play("shotgun_recoil");
                 Instantiate(_bullet, _bulletSpawnLeft.position, Quaternion.LookRotation(bulletDirection, transform.up));
                 Instantiate(_vfxShot, _shotVfxSpawnLeft.position, Quaternion.identity);
                 _firstShot = true;
-                _animation.Play("shotgun_recharge");
+                
                 _ammunitionPanel.SetPatronsCharged(0);
+                reloadCoroutine = StartCoroutine(Reload());
             }
         }
     }
@@ -118,6 +121,7 @@ public class ShotgunBehavior : MonoBehaviour
         _animation.Play("shotgun_pos_1");
         _ammunitionPanel = FindObjectOfType<AmmunitionPanel>();
         _ammunitionPanel.SetPatronsCharged(2);
+        _ammunitionPanel.SetPatronsRemains(_patronsRemain);
     }
 
     void Update()
@@ -131,11 +135,16 @@ public class ShotgunBehavior : MonoBehaviour
     private IEnumerator Reload()
     {
         _canFire = false;
-        yield return new WaitForSeconds(reloadTime);
-        _canFire = true;
-        _patronsRemains -= 2;
-        _ammunitionPanel.SetPatronsCharged(2);
-        _ammunitionPanel.SetPatronsRemains(_patronsRemains);
+        
+        if (_patronsRemain > 0)
+        {
+            _animation.Play("shotgun_recharge");
+            yield return new WaitForSeconds(reloadTime);
+            _canFire = true;
+            _patronsRemain -= 2;
+            _ammunitionPanel.SetPatronsCharged(2);
+            _ammunitionPanel.SetPatronsRemains(_patronsRemain);
+        }
     }
     private IEnumerator FireRate()
     {

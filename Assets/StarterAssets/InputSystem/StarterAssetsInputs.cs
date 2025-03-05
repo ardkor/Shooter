@@ -87,10 +87,18 @@ namespace StarterAssets
 		{
 			shoot = newShootInput;
 		}
+        private void OnEnable()
+        {
+			EventBus.Instance.playerDied += EnableCursor;
+		}
+        private void OnDisable()
+        {
+			EventBus.Instance.playerDied -= EnableCursor;
+        }
 
 #if !UNITY_IOS || !UNITY_ANDROID
 
-		private void OnApplicationFocus(bool hasFocus)
+        private void OnApplicationFocus(bool hasFocus)
 		{
 			SetCursorState(cursorLocked);
 		}
@@ -100,6 +108,12 @@ namespace StarterAssets
 			Cursor.lockState = newState ? CursorLockMode.Locked : CursorLockMode.None;
 		}
 
+		private void EnableCursor()
+		{
+			cursorInputForLook = false;
+			cursorLocked = false;
+			SetCursorState(cursorLocked);
+		}
 #endif
 
 	}

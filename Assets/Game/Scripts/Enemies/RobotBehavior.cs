@@ -49,7 +49,7 @@ public class RobotBehavior : MonoBehaviour
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         _player = FindFirstObjectByType<PlayerEntity>().transform;
-        _observer = GetComponentInChildren<Observer>();
+        _observer = GetComponent<Observer>();
     }
     private void Start()
     {
