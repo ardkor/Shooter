@@ -56,8 +56,8 @@ namespace main_hero
             Ray ray1 = mainCamera.ScreenPointToRay(screenCenterPoint);
             if (Physics.Raycast(ray1, out RaycastHit raycastHit, 999f, aimColliderLayerMask))
             {
-                Debug.DrawRay(ray1.origin, ray1.direction * 100f, Color.white);
-                aimBall.position = raycastHit.point;
+                Debug.DrawRay(ray1.origin, ray1.direction * 100f, Color.green);
+                //aimBall.position = raycastHit.point;
                 lookPointPosition = raycastHit.point;
             }
             else
@@ -79,6 +79,7 @@ namespace main_hero
                     aimVirtualCamera.gameObject.SetActive(true);
                     thirdPersonController.SetSensitivityMultiplier(aimSensitivity);
                     thirdPersonController.SetRotateOnMove(false);
+                    thirdPersonController.SetAimingRotation(true);
 
                     animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 1f, Time.deltaTime * 10f));
 
@@ -105,6 +106,7 @@ namespace main_hero
                     aimVirtualCamera.gameObject.SetActive(false);
                     thirdPersonController.SetSensitivityMultiplier(normalSensitivity);
                     thirdPersonController.SetRotateOnMove(true);
+                    thirdPersonController.SetAimingRotation(false);
                     animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 0f, Time.deltaTime * 10f));
                 }
             }

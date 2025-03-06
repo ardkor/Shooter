@@ -96,7 +96,15 @@ namespace StarterAssets
 
         private float _sentivity;
 
+        private float _rotation;
+        private float _rotationBeforeAiming;
+        private float _aimingAdditionalAngle = 42f;
 
+        private bool _aimingRotation;
+        public void SetAimingRotation(bool aiming)
+        {
+            _aimingRotation = aiming;
+        }
         public void SetSensitivityMultiplier(float newSensitivity)
         {
             Sensitivity = _sentivity * newSensitivity;
@@ -159,7 +167,10 @@ namespace StarterAssets
 
         private void LateUpdate()
         {
-            CameraRotation();
+            if (_movementEnabled)
+            {
+                CameraRotation();
+            }
         }
 
         private void AssignAnimationIDs()
@@ -242,17 +253,21 @@ namespace StarterAssets
             if (_input.move != Vector2.zero)
             {
                 _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg + _mainCamera.transform.eulerAngles.y;
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, RotationSmoothTime);
+                _rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity, RotationSmoothTime);
 
-                if (_rotateOnMove)
+                if (_rotateOnMove && !_aimingRotation)
                 {
-                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+                    transform.rotation = Quaternion.Euler(0.0f, _rotation, 0.0f);
+                    _rotationBeforeAiming = _rotation;
+                }
+                else if (_aimingRotation) 
+                {
+                    transform.rotation = Quaternion.Euler(0.0f, _rotationBeforeAiming + _aimingAdditionalAngle, 0.0f);
                 }
 
                 // rotate to face input direction relative to camera position
                 //transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
             }
-
 
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 

@@ -22,6 +22,7 @@ public class Observer : MonoBehaviour
     public bool observed => _observed;
 
     private Vector3 _playerCenterOffset = new Vector3(0, 1.3f, 0);
+    private Vector3 _botTransformOffset = new Vector3(0, 1.5f, 0);
     void Start()
     {
         cam = GetComponentInChildren<Camera>();
@@ -32,7 +33,8 @@ public class Observer : MonoBehaviour
         planes = GeometryUtility.CalculateFrustumPlanes(cam);
         if (GeometryUtility.TestPlanesAABB(planes, _target.bounds))
         {
-            Ray head_ray = new Ray(transform.position, (_rayTarget.position - transform.position).normalized);
+            Vector3 origin = transform.position + _botTransformOffset;
+            Ray head_ray = new Ray(origin, (_rayTarget.position - origin).normalized);
             Debug.DrawRay(head_ray.origin, head_ray.direction * 100f, Color.blue);
             if (Physics.Raycast(head_ray, out RaycastHit hit, _rayLength, aimColliderLayerMask))
             {

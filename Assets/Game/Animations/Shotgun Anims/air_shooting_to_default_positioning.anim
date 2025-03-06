@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: unposing
+  m_Name: air_shooting_to_default_positioning
   serializedVersion: 7
   m_Legacy: 1
   m_Compressed: 0

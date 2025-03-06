@@ -15,7 +15,7 @@ public class ShotgunBehavior : MonoBehaviour
     [SerializeField] private GameObject _bullet;
     [SerializeField] private GameObject _vfxShot;
 
-    [SerializeField] private Transform parent;
+    //[SerializeField] private Transform _parent;
     [SerializeField] private AudioClip _fire;
 
     private Animation _animation;
@@ -24,6 +24,7 @@ public class ShotgunBehavior : MonoBehaviour
     private Collider _collider;
 
     private Vector3 directionPoint;
+
 
     [SerializeField] private float fireRate = 0.2f;
     [SerializeField] private float reloadTime = 1.5f;
@@ -41,6 +42,12 @@ public class ShotgunBehavior : MonoBehaviour
 
     private int _patronsRemain = 12;
 
+    [SerializeField] private Transform _aimingBinding;
+    [SerializeField] private bool _inHands;
+    [SerializeField] private Vector3 _offset;
+
+    private Transform _parent;
+
     private void OnEnable()
     {
         EventBus.Instance.playerDied += Unconnect;
@@ -53,10 +60,11 @@ public class ShotgunBehavior : MonoBehaviour
 
     private void Unconnect()
     {
-       // unconnected = true;
+        // unconnected = true;
         _collider.enabled = true;
         transform.parent = null;
         _rigidbody.useGravity = true;
+        _rigidbody.isKinematic = false;
     }
     public void SetDirectionPoint(Vector3 directionPoint)
     {
@@ -64,25 +72,52 @@ public class ShotgunBehavior : MonoBehaviour
     }
     public void SetAiming(bool aiming)
     {
-        if (_aiming != aiming)
+        if (!_inHands)
         {
-            if (aiming)
+            if (_aiming != aiming)
             {
+                if (aiming)
+                {
 
-                _animation.Play("posing");
-                _aiming = true;
+                    _animation.Play("air_shooting_positioning");
+                    _aiming = true;
+                }
+                else
+                {
+                    _animation.PlayQueued("air_shooting_to_default_positioning");
+                    _aiming = false;
+                }
             }
-            else
+        }
+        else
+        {
+            if (_aiming != aiming)
             {
-                _animation.PlayQueued("unposing");
-                _aiming = false;
+                if (aiming)
+                {
+                    _aiming = true;
+                    _animation.Play("to_hands_positioning");
+                    AnimationState animState = _animation["to_hands_positioning"];
+
+
+                    //transform.SetParent(_aimingBinding, true);
+                    //transform.parent = _aimingBinding;
+                    StartCoroutine(AimingInHand(animState));
+
+                }
+                else
+                {
+                    transform.parent = _parent;
+                    _animation.PlayQueued("out_of_hands_positioning");
+                    _aiming = false;
+                }
             }
         }
     }
 
     public void TryShoot()
     {
-         Vector3 bulletDirection = (directionPoint - _bulletSpawnRight.position).normalized;
+        /* Vector3 bulletDirection = (directionPoint - _bulletSpawnRight.position).normalized;
 
         if (_canFire)
         {
@@ -107,7 +142,7 @@ public class ShotgunBehavior : MonoBehaviour
                 _ammunitionPanel.SetPatronsCharged(0);
                 reloadCoroutine = StartCoroutine(Reload());
             }
-        }
+        }*/
     }
 
 
@@ -122,20 +157,41 @@ public class ShotgunBehavior : MonoBehaviour
         _ammunitionPanel = FindObjectOfType<AmmunitionPanel>();
         _ammunitionPanel.SetPatronsCharged(2);
         _ammunitionPanel.SetPatronsRemains(_patronsRemain);
+        _parent = transform.parent;
     }
 
-    void Update()
+    void FixedUpdate()
     {
         //unconnected
         if (_aiming)
         {
-            transform.LookAt(directionPoint);
+            //transform.position = _aimingBinding.position + _offset;
+            //transform.position = _aimingBinding.position;
+            //transform.LookAt(directionPoint);
+
+            //transform.forward = _directionParent.forward;
+            //_rigidbody.MovePosition(_aimingBinding.position + _offset);
         }
     }
+    private IEnumerator AimingInHand(AnimationState animState)
+    {
+        //yield return new WaitForSeconds(animState.length);
+
+        yield return new WaitWhile(() => animState != null && animState.enabled && animState.normalizedTime < 1.0f);
+        yield return new WaitForEndOfFrame();
+        if (_aiming)
+            transform.SetParent(_aimingBinding, true);
+
+        //transform.parent = null;
+        //Debug.Log(transform.localPosition);
+        //transform.localPosition = transform.localPosition + _offset;
+
+    }
+
     private IEnumerator Reload()
     {
         _canFire = false;
-        
+
         if (_patronsRemain > 0)
         {
             _animation.Play("shotgun_recharge");
