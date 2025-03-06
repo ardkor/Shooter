@@ -15,6 +15,8 @@ public class ShotgunBehavior : MonoBehaviour
     [SerializeField] private GameObject _bullet;
     [SerializeField] private GameObject _vfxShot;
 
+    [SerializeField] private GameObject _body;
+
     //[SerializeField] private Transform _parent;
     [SerializeField] private AudioClip _fire;
 
@@ -108,6 +110,9 @@ public class ShotgunBehavior : MonoBehaviour
                 else
                 {
                     transform.parent = _parent;
+                    //gameObject.layer = LayerMask.NameToLayer("Player");
+                    //_body.layer = LayerMask.NameToLayer("Player");
+
                     _animation.PlayQueued("out_of_hands_positioning");
                     _aiming = false;
                 }
@@ -117,14 +122,17 @@ public class ShotgunBehavior : MonoBehaviour
 
     public void TryShoot()
     {
-        /* Vector3 bulletDirection = (directionPoint - _bulletSpawnRight.position).normalized;
+        Vector3 bulletDirection = (directionPoint - _bulletSpawnRight.position).normalized;
 
         if (_canFire)
         {
             if (_firstShot)
             {
                 SoundManager.Instance.PlaySound(_fire, _shotVfxSpawnRight.position);
-                _animation.Play("shotgun_recoil");
+                if (_inHands)
+                    _animation.Play("shotgun_recoil_in_hands");
+                else
+                    _animation.Play("shotgun_recoil");
                 Instantiate(_bullet, _bulletSpawnRight.position, Quaternion.LookRotation(bulletDirection, Vector3.up));
                 Instantiate(_vfxShot, _shotVfxSpawnRight.position, Quaternion.identity);
                 _firstShot = false;
@@ -134,15 +142,18 @@ public class ShotgunBehavior : MonoBehaviour
             else
             {
                 SoundManager.Instance.PlaySound(_fire, _shotVfxSpawnLeft.position);
-                _animation.Play("shotgun_recoil");
+                if (_inHands)
+                    _animation.Play("shotgun_recoil_in_hands");
+                else
+                    _animation.Play("shotgun_recoil");
                 Instantiate(_bullet, _bulletSpawnLeft.position, Quaternion.LookRotation(bulletDirection, transform.up));
                 Instantiate(_vfxShot, _shotVfxSpawnLeft.position, Quaternion.identity);
                 _firstShot = true;
-                
+
                 _ammunitionPanel.SetPatronsCharged(0);
                 reloadCoroutine = StartCoroutine(Reload());
             }
-        }*/
+        }
     }
 
 
@@ -162,7 +173,6 @@ public class ShotgunBehavior : MonoBehaviour
 
     void FixedUpdate()
     {
-        //unconnected
         if (_aiming)
         {
             //transform.position = _aimingBinding.position + _offset;
@@ -180,8 +190,11 @@ public class ShotgunBehavior : MonoBehaviour
         yield return new WaitWhile(() => animState != null && animState.enabled && animState.normalizedTime < 1.0f);
         yield return new WaitForEndOfFrame();
         if (_aiming)
+        {
             transform.SetParent(_aimingBinding, true);
-
+            //gameObject.layer = LayerMask.NameToLayer("PlayerFPV");
+            //_body.layer = LayerMask.NameToLayer("PlayerFPV");
+        }
         //transform.parent = null;
         //Debug.Log(transform.localPosition);
         //transform.localPosition = transform.localPosition + _offset;
@@ -194,7 +207,10 @@ public class ShotgunBehavior : MonoBehaviour
 
         if (_patronsRemain > 0)
         {
-            _animation.Play("shotgun_recharge");
+            if (_inHands)
+                _animation.Play("shotgun_recharge_in_hands");
+            else
+                _animation.Play("shotgun_recharge");
             yield return new WaitForSeconds(reloadTime);
             _canFire = true;
             _patronsRemain -= 2;

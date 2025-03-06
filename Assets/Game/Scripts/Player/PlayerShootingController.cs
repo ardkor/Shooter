@@ -9,6 +9,7 @@ namespace main_hero
     public class PlayerShootingController : MonoBehaviour
     {
         [SerializeField] private CinemachineVirtualCamera aimVirtualCamera;
+        [SerializeField] private CinemachineVirtualCamera _fpvAimVirtualCamera;
         [SerializeField] private ShotgunBehavior shotgunBehavior;
         [SerializeField] private Transform aimBall;
         [SerializeField] private LayerMask aimColliderLayerMask;
@@ -26,6 +27,7 @@ namespace main_hero
         private float aimingDistance = 1000f;
 
         private bool _aimingEnabled = true;
+        [SerializeField] private bool _fpv = true;
 
         private void OnEnable()
         {
@@ -76,9 +78,16 @@ namespace main_hero
                     shotgunBehavior.SetAiming(true);
                     shotgunBehavior.SetDirectionPoint(lookPointPosition);
 
-                    aimVirtualCamera.gameObject.SetActive(true);
+                    if (!_fpv) 
+                    { 
+                        aimVirtualCamera.gameObject.SetActive(true);
+                    }
+                    else
+                    {
+                        _fpvAimVirtualCamera.gameObject.SetActive(true);
+                    }
                     thirdPersonController.SetSensitivityMultiplier(aimSensitivity);
-                    thirdPersonController.SetRotateOnMove(false);
+                    //thirdPersonController.SetRotateOnMove(false);
                     thirdPersonController.SetAimingRotation(true);
 
                     animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 1f, Time.deltaTime * 10f));
@@ -87,7 +96,7 @@ namespace main_hero
                     bodyDirectionTarget.y = transform.position.y;
                     Vector3 bodyDirection = (bodyDirectionTarget - transform.position).normalized;
 
-                    transform.forward = Vector3.Lerp(transform.forward, bodyDirection, Time.deltaTime * 20f);
+                    //transform.forward = Vector3.Lerp(transform.forward, bodyDirection, Time.deltaTime * 20f);
 
                     if (starterAssetsInputs.shoot)
                     {
@@ -103,9 +112,16 @@ namespace main_hero
                     }*/
                     shotgunBehavior.SetAiming(false);
 
-                    aimVirtualCamera.gameObject.SetActive(false);
+                    if (!_fpv)
+                    {
+                        aimVirtualCamera.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        _fpvAimVirtualCamera.gameObject.SetActive(false);
+                    }
                     thirdPersonController.SetSensitivityMultiplier(normalSensitivity);
-                    thirdPersonController.SetRotateOnMove(true);
+                    //thirdPersonController.SetRotateOnMove(true);
                     thirdPersonController.SetAimingRotation(false);
                     animator.SetLayerWeight(1, Mathf.Lerp(animator.GetLayerWeight(1), 0f, Time.deltaTime * 10f));
                 }
