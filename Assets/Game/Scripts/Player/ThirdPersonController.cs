@@ -122,13 +122,18 @@ namespace StarterAssets
         private void OnEnable()
         {
             EventBus.Instance.playerDied += DisableMovement;
+            EventBus.Instance.playerDied += LockCamera;
         }
 
         private void OnDisable()
         {
             EventBus.Instance.playerDied -= DisableMovement;
+            EventBus.Instance.playerDied -= LockCamera;
         }
-
+        private void LockCamera()
+        {
+            LockCameraPosition = true;
+        }
         private void DisableMovement()
         {
             _movementEnabled = false;
@@ -171,10 +176,7 @@ namespace StarterAssets
 
         private void LateUpdate()
         {
-            if (_movementEnabled)
-            {
-                CameraRotation();
-            }
+            CameraRotation();
         }
 
         private void AssignAnimationIDs()
@@ -366,7 +368,7 @@ namespace StarterAssets
 
         private void OnDrawGizmosSelected()
         {
-            Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
+            Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 1f);
             Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
 
             if (Grounded) Gizmos.color = transparentGreen;

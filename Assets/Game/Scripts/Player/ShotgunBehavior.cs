@@ -208,9 +208,9 @@ public class ShotgunBehavior : MonoBehaviour
         if (_patronsRemain > 0)
         {
             if (_inHands)
-                _animation.Play("shotgun_recharge_in_hands");
+                _animation.PlayQueued("shotgun_recharge_in_hands");
             else
-                _animation.Play("shotgun_recharge");
+                _animation.PlayQueued("shotgun_recharge");
             yield return new WaitForSeconds(reloadTime);
             _canFire = true;
             _patronsRemain -= 2;
