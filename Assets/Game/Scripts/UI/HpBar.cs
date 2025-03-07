@@ -9,7 +9,7 @@ public class HpBar : MonoBehaviour
     [SerializeField] private RectMask2D _hpFullness;
 
     private int _maxHp;
-    private float _maskWidth;
+    private float _maskWidth = 295;
 
     public void SetMaxHp(int maxHp) 
     {
@@ -23,7 +23,7 @@ public class HpBar : MonoBehaviour
     private void OnEnable()
     {
         EventBus.Instance.playerHpChanged += UpdateHpDisplay;
-        _maskWidth = _hpFullness.GetComponent<RectTransform>().rect.width;
+        //_maskWidth = _hpFullness.GetComponent<RectTransform>().rect.width / _canvas.rect.width * 1920f;
     }
 
     private void OnDisable()

@@ -38,13 +38,15 @@ public class Observer : MonoBehaviour
             Debug.DrawRay(head_ray.origin, head_ray.direction * 100f, Color.blue);
             if (Physics.Raycast(head_ray, out RaycastHit hit, _rayLength, aimColliderLayerMask))
             {
-                if (hit.collider.GetComponent<PlayerEntity>())
+                if (hit.collider.GetComponent<PlayerEntity>() || hit.collider.GetComponentInParent<PlayerEntity>())
                 {
                     _observed = true;
                     _timer = _rememberTime;
                     _observing = true;
                     return;
                 }
+/*                else
+                    Debug.Log(hit.collider);*/
             }
         }
         _observing = false;
